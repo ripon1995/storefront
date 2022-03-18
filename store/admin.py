@@ -1,8 +1,12 @@
+from encodings import search_function
 from django.contrib import admin
 from . import models
 # Register your models here.
 
-admin.site.register(models.Collection)
+@admin.register(models.Collection)
+class CollectionAdmin(admin.ModelAdmin) :
+    list_display = ['title']
+
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin) :
@@ -20,6 +24,7 @@ class CustomerAdmin(admin.ModelAdmin) :
     list_display = ['first_name','last_name','membership']
     list_editable = ['membership']
     list_per_page = 10
+    search_fields = ['first_name','last_name']
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin) :
