@@ -1,52 +1,35 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
-from .models import Collection, Product
-from .serializers import CollectionSerializer, ProductSerializer
-from store import serializers
+from .models import Collection, OrderItem, Product, Review
+from .serializers import CollectionSerializer, ProductSerializer, ReviewSerializer
 # Create your views here.
 
 
-class ProductList(ListCreateAPIView):
-    # if we have complex querySet then we have to implement that in get_queryset() method
-    def get_queryset(self):
-        return Product.objects.all()
-
-    # if we have complex serializer then we have to implement that in get_serializer_class
-    def get_serializer_class(self):
-        return ProductSerializer
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
     def get_serializer_context(self):
         return {'request': self.request}
 
-
-class ProductDetail(RetrieveUpdateDestroyAPIView):
-    def get_queryset(self):
-        return Product.objects.all()
-
-    def get_serializer_class(self):
-        return ProductSerializer
-
-    def delete(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        if product.orderitems.count() > 0:
+    def destroy(self, request, *args, **kwargs):
+        if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
             return Response({'error': 'Product cannot be deleted'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        product.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-# this can be done like ProductList but as there is no complex query and serializer we can simply
-# create this attributes
+        return super().destroy(request, *args, **kwargs)
 
 
-class CollectionList(ListCreateAPIView):
-
+class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
 
 
-class CollectionDetail(RetrieveUpdateDestroyAPIView):
+class ReviewViewSet(ModelViewSet):
+    
+    def get_queryset(self):
+        return Review.objects.filter(product_id=self.kwargs['product_pk'])
 
-    queryset = Collection.objects.all()
-    serializer_class = CollectionSerializer
+    serializer_class = ReviewSerializer
+
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}
