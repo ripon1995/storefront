@@ -1,6 +1,7 @@
 from uuid import uuid4
 from django.db import models
 
+
 # Create your models here.
 
 
@@ -21,7 +22,7 @@ class Collection(models.Model):
         ordering = ['title']
 
 
-class Product (models.Model):
+class Product(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField()
@@ -94,17 +95,17 @@ class OrderItem(models.Model):
 
 
 class Cart(models.Model):
-    id = models.UUIDField(primary_key=True,default=uuid4)
+    id = models.UUIDField(primary_key=True, default=uuid4)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE,related_name='items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        unique_together = [['cart','product']]
+        unique_together = [['cart', 'product']]
 
 
 class Review(models.Model):
