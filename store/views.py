@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from .models import CartItem, Collection, OrderItem, Product, Review, Cart, Customer
 from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CollectionSerializer, \
     ProductSerializer, ReviewSerializer, UpdateCartItemSerializer, CustomerSerializer
@@ -67,8 +68,7 @@ class CartItemViewSet(ModelViewSet):
 class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['GET', 'PUT'])
     def me(self, request):
